@@ -1,8 +1,7 @@
 {
-  "name": "longnecks-website",
-  "version": "1.0.0",
-  "description": "Longnecks Website with OpenSea API",
-  "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
+  "version": 2,
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/api/(.*)", "dest": "/api/$1" }
+  ]
 }
