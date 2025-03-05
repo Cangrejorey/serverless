@@ -25,21 +25,37 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Call OpenSea API
-    const apiUrl = `https://api.opensea.io/api/v1/assets?collection=${collection}&limit=20`;
-    
-    const response = await fetch(apiUrl, {
-      headers: {
-        'Accept': 'application/json'
-        // Add your OpenSea API key here if you have one
-        // 'X-API-KEY': 'your-opensea-api-key'
-      }
-    });
-    
-    const data = await response.json();
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error('Error fetching from OpenSea:', error);
-    return res.status(500).json({ error: 'Failed to fetch from OpenSea API' });
-  }
+  // Log request details
+  console.log(`[OpenSea API] Requesting collection: ${collection}`);
+  
+  // Call OpenSea API
+  const apiUrl = `https://api.opensea.io/api/v1/assets?collection=${collection}&limit=20`;
+  console.log(`[OpenSea API] Full URL: ${apiUrl}`);
+  
+  const response = await fetch(apiUrl, {
+    headers: {
+      'Accept': 'application/json'
+    }
+  });
+  
+  // Log response status
+  console.log(`[OpenSea API] Response status: ${response.status}`);
+  
+  const data = await response.json();
+  
+  // Log a preview of the response data
+  const dataPreview = JSON.stringify(data).substring(0, 300) + '...';
+  console.log(`[OpenSea API] Response preview: ${dataPreview}`);
+  
+  // Log asset count
+  const assetCount = data.assets ? data.assets.length : 0;
+  console.log(`[OpenSea API] Assets found: ${assetCount}`);
+  
+  return res.status(200).json(data);
+} catch (error) {
+  // Log detailed error information
+  console.error(`[OpenSea API] Error: ${error.message}`);
+  console.error(`[OpenSea API] Stack: ${error.stack}`);
+  return res.status(500).json({ error: 'Failed to fetch from OpenSea API', message: error.message });
+}
 };
