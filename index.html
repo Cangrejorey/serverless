@@ -326,47 +326,39 @@
             const gallery = document.getElementById('nft-gallery');
             
             try {
-                gallery.innerHTML = '<div class="loading-spinner">Loading collection...</div>';
-                
-                // If you're not using the API endpoint, this fetch will fail
-                // You may want to comment this out or replace with static content
-                const response = await fetch(`https://api.opensea.io/api/v1/assets?collection=${collectionSlug}&limit=20`);
-                const data = await response.json();
-                
-                if (data.assets && data.assets.length > 0) {
-                    gallery.innerHTML = ''; // Clear loading message
-                    
-                    data.assets.forEach(nft => {
-                        const card = document.createElement('div');
-                        card.className = 'nft-card';
-                        
-                        // Get the best image URL
-                        const imageUrl = nft.image_thumbnail_url || nft.image_url || nft.image_preview_url || '/api/placeholder/250/250';
-                        
-                        // Format price if available
-                        let priceDisplay = 'Not listed for sale';
-                        if (nft.last_sale) {
-                            const price = parseFloat(nft.last_sale.total_price) / 1e18; // Convert from wei to ETH
-                            priceDisplay = `Last sold for ${price.toFixed(3)} ETH`;
-                        }
-                        
-                        card.innerHTML = `
-                            <img src="${imageUrl}" alt="${nft.name || 'NFT'}" class="nft-image" onerror="this.src='/api/placeholder/250/250'">
-                            <div class="nft-info">
-                                <h3 class="nft-name">${nft.name || 'Unnamed NFT'}</h3>
-                                <p class="nft-price">${priceDisplay}</p>
-                            </div>
-                        `;
-                        
-                        card.addEventListener('click', () => {
-                            window.open(nft.permalink, '_blank');
-                        });
-                        
-                        gallery.appendChild(card);
-                    });
-                } else {
-                    gallery.innerHTML = '<p>No NFTs found in this collection.</p>';
-                }
+  console.log(`[Frontend] Starting to fetch NFTs for collection: ${collectionSlug}`);
+  gallery.innerHTML = '<div class="loading-spinner">Loading collection...</div>';
+  
+  // Make the API request
+  console.log(`[Frontend] Calling API endpoint: /api/opensea?collection=${collectionSlug}`);
+  const response = await fetch(`/api/opensea?collection=${collectionSlug}`);
+  console.log(`[Frontend] API response status: ${response.status}`);
+  
+  const data = await response.json();
+  console.log(`[Frontend] API response received:`, data);
+  
+  if (data.assets && data.assets.length > 0) {
+    console.log(`[Frontend] Found ${data.assets.length} NFTs in the collection`);
+    gallery.innerHTML = ''; // Clear loading message
+    
+    data.assets.forEach((nft, index) => {
+      console.log(`[Frontend] Processing NFT #${index+1}: ${nft.name || 'Unnamed'}`);
+      // Rest of your NFT rendering code...
+    });
+  } else {
+    console.log(`[Frontend] No assets found in API response:`, data);
+    gallery.innerHTML = `
+      <p>No NFTs found in this collection: "${collectionSlug}"</p>
+      <p>Try checking the collection name or inspect the console for more details.</p>
+    `;
+  }
+} catch (error) {
+  console.error(`[Frontend] Error fetching NFTs:`, error);
+  gallery.innerHTML = `
+    <p>Error loading NFTs: ${error.message}</p>
+    <p>Check the console for more details.</p>
+  `;
+}
             } catch (error) {
                 console.error('Error fetching NFTs:', error);
                 gallery.innerHTML = '<p>NFT collection currently unavailable. Please check back later.</p>';
