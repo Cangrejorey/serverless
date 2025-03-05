@@ -1,5 +1,5 @@
 // api/opensea.js
-const fetch = require('node-fetch');
+const fetch = require('node-fetch@2');
 
 module.exports = async (req, res) => {
   // Set CORS headers
